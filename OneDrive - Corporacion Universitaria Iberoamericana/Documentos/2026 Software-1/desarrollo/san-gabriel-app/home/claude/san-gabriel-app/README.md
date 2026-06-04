@@ -111,8 +111,6 @@ http://localhost:3001/api-docs
 
 ## 👥 Integrantes
 
-- Laura Daniela Herrera Vanegas
-- Andrés Felipe Romero Castillo
-- Sara Valentina Muñoz Perdomo
+Angie Tatiana Pacalagua Mejia
 
-**Docente:** Mg. Carlos Alberto Prada Nieto
+**Docente:** Mg. Diana Toquica
