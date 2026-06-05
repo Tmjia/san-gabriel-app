@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>San Gabriel · Portal Académico</title>
+<style>
+  :root {
+    --azul:    #1F3864;
+    --azul2:   #2E5090;
+    --verde:   #27ae60;
+    --rojo:    #e74c3c;
+    --gris:    #f4f6f9;
+    --borde:   #dde3ec;
+    --texto:   #2c3e50;
+    --muted:   #7f8c8d;
+    --blanco:  #ffffff;
+    --amarillo:#f39c12;
+    --sombra:  0 2px 12px rgba(0,0,0,.08);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--gris); color:var(--texto); }
+
+  /* ── LOGIN ────────────────────────────────── */
+  .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--azul) 0%,var(--azul2) 100%); }
+  .login-card { background:var(--blanco); border-radius:16px; padding:2.5rem 2rem;
+    width:360px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+  .login-logo { text-align:center; margin-bottom:1.5rem; }
+  .login-logo .icono { font-size:3rem; }
+  .login-logo h1 { font-size:1.4rem; color:var(--azul); margin-top:.4rem; font-weight:700; }
+  .login-logo p  { font-size:.85rem; color:var(--muted); }
+  .campo { margin-bottom:1rem; }
+  .campo label { display:block; font-size:.85rem; font-weight:600; color:var(--texto); margin-bottom:.35rem; }
+  .campo input, .campo select {
+    width:100%; padding:.65rem .8rem; border:1.5px solid var(--borde);
+    border-radius:8px; font-size:.95rem; outline:none; transition:border .2s;
+    background:var(--blanco); color:var(--texto); }
+  .campo input:focus, .campo select:focus { border-color:var(--azul2); }
+  .btn-login { width:100%; padding:.8rem; background:var(--azul); color:#fff;
+    border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer;
+    transition:background .2s; margin-top:.5rem; }
+  .btn-login:hover { background:var(--azul2); }
+  .login-hint { margin-top:1rem; padding:.75rem; background:#eef2ff;
+    border-radius:8px; font-size:.8rem; color:var(--azul); }
+  .login-hint strong { display:block; margin-bottom:.3rem; }
+
+  /* ── LAYOUT PRINCIPAL ─────────────────────── */
+  .app { display:flex; min-height:100vh; }
+  .sidebar { width:230px; background:var(--azul); color:#fff; display:flex;
+    flex-direction:column; padding:0; flex-shrink:0; }
+  .sidebar-header { padding:1.2rem 1rem; border-bottom:1px solid rgba(255,255,255,.12); }
+  .sidebar-header h2 { font-size:.95rem; font-weight:700; }
+  .sidebar-header p  { font-size:.75rem; opacity:.7; margin-top:.2rem; }
+  .sidebar-menu { flex:1; padding:.8rem 0; }
+  .menu-item { display:flex; align-items:center; gap:.7rem; padding:.65rem 1rem;
+    cursor:pointer; transition:background .15s; font-size:.88rem; border-radius:0; }
+  .menu-item:hover { background:rgba(255,255,255,.1); }
+  .menu-item.activo { background:rgba(255,255,255,.18); font-weight:600; }
+  .menu-item .icn { font-size:1.1rem; width:20px; text-align:center; }
+  .sidebar-footer { padding:.8rem 1rem; border-top:1px solid rgba(255,255,255,.12); }
+  .btn-logout { width:100%; padding:.5rem; background:rgba(255,255,255,.1);
+    color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:6px;
+    cursor:pointer; font-size:.82rem; transition:background .2s; }
+  .btn-logout:hover { background:rgba(255,255,255,.2); }
+
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+  .topbar { background:var(--blanco); border-bottom:1px solid var(--borde);
+    padding:.75rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+  .topbar h2 { font-size:1.05rem; color:var(--azul); }
+  .topbar-user { display:flex; align-items:center; gap:.6rem; }
+  .avatar { width:34px; height:34px; border-radius:50%; background:var(--azul);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:.85rem; font-weight:700; }
+  .rol-badge { font-size:.72rem; padding:.2rem .6rem; border-radius:20px;
+    background:#eef2ff; color:var(--azul); font-weight:600; }
+
+  .content { flex:1; padding:1.5rem; overflow-y:auto; }
+
+  /* ── CARDS / ESTADÍSTICAS ─────────────────── */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+  .stat-card { background:var(--blanco); border-radius:12px; padding:1.2rem;
+    box-shadow:var(--sombra); display:flex; align-items:center; gap:1rem; }
+  .stat-icono { width:48px; height:48px; border-radius:12px; display:flex;
+    align-items:center; justify-content:center; font-size:1.5rem; }
+  .stat-icono.azul   { background:#eef2ff; }
+  .stat-icono.verde  { background:#e8f8ef; }
+  .stat-icono.rojo   { background:#fef0ee; }
+  .stat-icono.gold   { background:#fef9e7; }
+  .stat-num  { font-size:1.6rem; font-weight:800; color:var(--azul); line-height:1; }
+  .stat-lbl  { font-size:.78rem; color:var(--muted); margin-top:.15rem; }
+
+  /* ── TABLA ────────────────────────────────── */
+  .card { background:var(--blanco); border-radius:12px; box-shadow:var(--sombra);
+    margin-bottom:1.2rem; overflow:hidden; }
+  .card-header { padding:1rem 1.2rem; border-bottom:1px solid var(--borde);
+    display:flex; align-items:center; justify-content:space-between; }
+  .card-header h3 { font-size:.95rem; color:var(--azul); font-weight:700; }
+  .card-body { padding:1rem 1.2rem; }
+  table { width:100%; border-collapse:collapse; font-size:.87rem; }
+  th { background:var(--gris); color:var(--azul); font-weight:700;
+    padding:.6rem .8rem; text-align:left; font-size:.8rem; text-transform:uppercase;
+    letter-spacing:.03em; }
+  td { padding:.65rem .8rem; border-bottom:1px solid var(--borde); color:var(--texto); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#fafbff; }
+
+  /* ── BADGES / ESTADO ──────────────────────── */
+  .badge { display:inline-block; padding:.2rem .6rem; border-radius:20px;
+    font-size:.72rem; font-weight:700; }
+  .badge.verde  { background:#e8f8ef; color:#27ae60; }
+  .badge.rojo   { background:#fef0ee; color:#e74c3c; }
+  .badge.gold   { background:#fef9e7; color:#f39c12; }
+  .badge.azul   { background:#eef2ff; color:#1F3864; }
+  .badge.gris   { background:#f4f6f9; color:#7f8c8d; }
+
+  /* ── BOTONES ──────────────────────────────── */
+  .btn { padding:.45rem .9rem; border:none; border-radius:6px; cursor:pointer;
+    font-size:.82rem; font-weight:600; transition:opacity .2s; }
+  .btn:hover { opacity:.85; }
+  .btn-primary { background:var(--azul); color:#fff; }
+  .btn-success { background:var(--verde); color:#fff; }
+  .btn-danger  { background:var(--rojo);  color:#fff; }
+  .btn-warn    { background:var(--amarillo); color:#fff; }
+  .btn-ghost   { background:var(--gris); color:var(--texto); border:1px solid var(--borde); }
+
+  /* ── FORMULARIO ───────────────────────────── */
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .form-field { margin-bottom:.9rem; }
+  .form-field label { display:block; font-size:.82rem; font-weight:600;
+    color:var(--texto); margin-bottom:.3rem; }
+  .form-field input, .form-field select, .form-field textarea {
+    width:100%; padding:.55rem .75rem; border:1.5px solid var(--borde);
+    border-radius:7px; font-size:.9rem; outline:none; transition:border .2s;
+    font-family:inherit; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+    border-color:var(--azul2); }
+  .form-field textarea { resize:vertical; min-height:70px; }
+  .msg-ok  { padding:.6rem .9rem; background:#e8f8ef; color:#27ae60;
+    border-radius:7px; font-size:.85rem; font-weight:600; margin-bottom:.8rem; }
+  .msg-err { padding:.6rem .9rem; background:#fef0ee; color:#e74c3c;
+    border-radius:7px; font-size:.85rem; font-weight:600; margin-bottom:.8rem; }
+
+  /* ── ASISTENCIA ───────────────────────────── */
+  .asis-row { display:flex; align-items:center; justify-content:space-between;
+    padding:.6rem .8rem; border-bottom:1px solid var(--borde); }
+  .asis-row:last-child { border-bottom:none; }
+  .asis-nombre { font-size:.88rem; font-weight:600; }
+  .asis-btns { display:flex; gap:.4rem; }
+  .asis-btn { padding:.3rem .7rem; border:1.5px solid var(--borde); border-radius:6px;
+    cursor:pointer; font-size:.78rem; background:var(--blanco); transition:all .15s; }
+  .asis-btn.sel-presente { background:#e8f8ef; border-color:#27ae60; color:#27ae60; font-weight:700; }
+  .asis-btn.sel-ausente  { background:#fef0ee; border-color:#e74c3c; color:#e74c3c; font-weight:700; }
+  .asis-btn.sel-tarde    { background:#fef9e7; border-color:#f39c12; color:#f39c12; font-weight:700; }
+
+  /* ── PORTAL ACUDIENTE ─────────────────────── */
+  .nota-materia { display:flex; align-items:center; justify-content:space-between;
+    padding:.7rem 0; border-bottom:1px solid var(--borde); }
+  .nota-materia:last-child { border-bottom:none; }
+  .nota-nombre { font-size:.9rem; font-weight:600; }
+  .nota-val { font-size:1.2rem; font-weight:800; color:var(--azul); }
+  .promedio-box { background:var(--azul); color:#fff; border-radius:12px;
+    padding:1rem; text-align:center; margin-bottom:1rem; }
+  .promedio-num { font-size:2.5rem; font-weight:900; }
+  .promedio-lbl { font-size:.82rem; opacity:.8; }
+
+  /* ── NOTIFICACIÓN TOAST ───────────────────── */
+  .toast { position:fixed; bottom:1.5rem; right:1.5rem; background:var(--azul);
+    color:#fff; padding:.8rem 1.2rem; border-radius:10px; font-size:.88rem;
+    font-weight:600; box-shadow:0 8px 25px rgba(0,0,0,.2); z-index:1000;
+    animation:slideUp .3s ease; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── MÓDULO COMUNICADOS ───────────────────── */
+  .comunicado-item { padding:.9rem; border-left:4px solid var(--azul);
+    background:var(--blanco); border-radius:0 8px 8px 0; margin-bottom:.8rem;
+    box-shadow:var(--sombra); }
+  .comunicado-item h4 { font-size:.9rem; color:var(--azul); }
+  .comunicado-item p  { font-size:.82rem; color:var(--muted); margin-top:.3rem; }
+  .comunicado-item .fecha { font-size:.75rem; color:var(--muted); margin-top:.4rem; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--borde); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  DATOS INICIALES
+// ════════════════════════════════════════════════════════
+const USUARIOS = [
+  { id:'1', nombre:'Carlos Docente',       correo:'docente@sangabriel.edu.co',      pass:'demo1234', rol:'docente'      },
+  { id:'2', nombre:'María Coordinadora',   correo:'coordinador@sangabriel.edu.co',  pass:'demo1234', rol:'coordinador'  },
+  { id:'3', nombre:'Pedro Acudiente',      correo:'acudiente@sangabriel.edu.co',    pass:'demo1234', rol:'acudiente'    },
+  { id:'4', nombre:'Admin Sistema',        correo:'admin@sangabriel.edu.co',        pass:'demo1234', rol:'administrador'},
+];
+
+const ESTUDIANTES_INIT = [
+  { id:'e1', nombre:'Valentina Ospina Ruiz',   grado:'9°A', doc:'1023456781' },
+  { id:'e2', nombre:'Santiago Morales Cruz',   grado:'9°A', doc:'1023456782' },
+  { id:'e3', nombre:'Daniela Cifuentes Vera',  grado:'9°A', doc:'1023456783' },
+  { id:'e4', nombre:'Juan Pérez Gómez',        grado:'9°A', doc:'1023456784' },
+  { id:'e5', nombre:'Laura Ramírez Torres',    grado:'9°A', doc:'1023456785' },
+];
+
+const MATERIAS = ['Matemáticas','Español','Ciencias Naturales','Historia','Inglés','Educación Física'];
+
+const NOTAS_INIT = [
+  { id:'n1', estudianteId:'e1', materia:'Matemáticas',      valor:4.2, periodo:'1', estado:'aprobada', docente:'Carlos Docente' },
+  { id:'n2', estudianteId:'e1', materia:'Español',           valor:3.8, periodo:'1', estado:'aprobada', docente:'Carlos Docente' },
+  { id:'n3', estudianteId:'e1', materia:'Ciencias Naturales',valor:4.5, periodo:'1', estado:'aprobada', docente:'Carlos Docente' },
+  { id:'n4', estudianteId:'e2', materia:'Matemáticas',       valor:3.1, periodo:'1', estado:'en_revision', docente:'Carlos Docente' },
+  { id:'n5', estudianteId:'e2', materia:'Español',           valor:4.0, periodo:'1', estado:'aprobada', docente:'Carlos Docente' },
+  { id:'n6', estudianteId:'e3', materia:'Matemáticas',       valor:2.8, periodo:'1', estado:'aprobada', docente:'Carlos Docente' },
+  { id:'n7', estudianteId:'e4', materia:'Inglés',            valor:4.7, periodo:'1', estado:'en_revision', docente:'Carlos Docente' },
+  { id:'n8', estudianteId:'e5', materia:'Historia',          valor:3.5, periodo:'1', estado:'aprobada', docente:'Carlos Docente' },
+];
+
+const hoy = new Date().toISOString().split('T')[0];
+const ASISTENCIA_INIT = [
+  { id:'a1', estudianteId:'e1', fecha:hoy, estado:'presente' },
+  { id:'a2', estudianteId:'e2', fecha:hoy, estado:'ausente'  },
+  { id:'a3', estudianteId:'e3', fecha:hoy, estado:'presente' },
+  { id:'a4', estudianteId:'e4', fecha:hoy, estado:'tarde'    },
+  { id:'a5', estudianteId:'e5', fecha:hoy, estado:'presente' },
+];
+
+const COMUNICADOS_INIT = [
+  { id:'c1', asunto:'Reunión de padres — periodo 1',  cuerpo:'Se convoca a todos los acudientes el próximo viernes 14 de junio a las 6:00 pm en el auditorio principal.', fecha:'2026-06-01', remitente:'Coordinación' },
+  { id:'c2', asunto:'Jornada pedagógica',             cuerpo:'El día 20 de junio no habrá clases por jornada de planeación docente.', fecha:'2026-05-28', remitente:'Rectoría' },
+  { id:'c3', asunto:'Entrega de boletines',           cuerpo:'Los boletines del primer periodo estarán disponibles en el portal desde el 25 de junio.', fecha:'2026-05-25', remitente:'Coordinación' },
+];
+
+// ── LocalStorage helper ──────────────────────
+function lsGet(k,def) { try { return JSON.parse(localStorage.getItem('sg_'+k)) ?? def; } catch { return def; } }
+function lsSet(k,v) { localStorage.setItem('sg_'+k, JSON.stringify(v)); }
+
+// ── Estado global ────────────────────────────
+let estado = {
+  usuario:     null,
+  vista:       'dashboard',
+  notas:       lsGet('notas',       NOTAS_INIT),
+  asistencia:  lsGet('asistencia',  ASISTENCIA_INIT),
+  comunicados: lsGet('comunicados', COMUNICADOS_INIT),
+  toast:       null,
+};
+
+// ════════════════════════════════════════════════════════
+//  RENDER ENGINE (Vanilla JS)
+// ════════════════════════════════════════════════════════
+function render() {
+  const root = document.getElementById('root');
+  root.innerHTML = '';
+  if (!estado.usuario) {
+    root.appendChild(renderLogin());
+  } else {
+    root.appendChild(renderApp());
+  }
+  if (estado.toast) renderToast(estado.toast);
+}
+
+function toast(msg, ms=2800) {
+  estado.toast = msg;
+  render();
+  setTimeout(() => { estado.toast = null; render(); }, ms);
+}
+
+function setVista(v) { estado.vista = v; render(); }
+
+// ════════════════════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════════════════════
+function renderLogin() {
+  const wrap = el('div','login-wrap');
+  const card = el('div','login-card');
+
+  card.innerHTML = `
+    <div class="login-logo">
+      <div class="icono">🏫</div>
+      <h1>I.E. San Gabriel</h1>
+      <p>Portal Académico</p>
+    </div>
+    <div class="campo">
+      <label>Correo institucional</label>
+      <input id="inp-correo" type="email" placeholder="correo@sangabriel.edu.co" value="docente@sangabriel.edu.co"/>
+    </div>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input id="inp-pass" type="password" placeholder="Contraseña" value="demo1234"/>
+    </div>
+    <div id="login-err" style="display:none;color:#e74c3c;font-size:.83rem;margin-bottom:.6rem;"></div>
+    <button class="btn-login" id="btn-ingresar">Ingresar</button>
+    <div class="login-hint">
+      <strong>Cuentas de demostración (pass: demo1234)</strong>
+      docente@sangabriel.edu.co<br>
+      coordinador@sangabriel.edu.co<br>
+      acudiente@sangabriel.edu.co<br>
+      admin@sangabriel.edu.co
+    </div>
+    <div style="margin-top:.8rem;padding:.7rem;background:var(--azul);border-radius:8px;font-size:.75rem;color:rgba(255,255,255,.9);text-align:center">
+      <strong style="display:block;margin-bottom:.2rem;color:#fff">⚙️ Stack tecnológico</strong>
+      Frontend: React · Hooks · Context API · Axios · React Router<br>
+      Backend: Node.js · Express · JWT · Swagger · PostgreSQL
+    </div>`;
+
+  wrap.appendChild(card);
+
+  setTimeout(() => {
+    document.getElementById('btn-ingresar').addEventListener('click', () => {
+      const correo = document.getElementById('inp-correo').value.trim();
+      const pass   = document.getElementById('inp-pass').value.trim();
+      const u = USUARIOS.find(u => u.correo === correo && u.pass === pass);
+      if (u) {
+        estado.usuario = u;
+        estado.vista   = 'dashboard';
+        render();
+      } else {
+        document.getElementById('login-err').textContent = 'Correo o contraseña incorrectos.';
+        document.getElementById('login-err').style.display = 'block';
+      }
+    });
+    document.getElementById('inp-pass').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btn-ingresar').click();
+    });
+  }, 0);
+
+  return wrap;
+}
+
+// ════════════════════════════════════════════════════════
+//  APP SHELL
+// ════════════════════════════════════════════════════════
+function renderApp() {
+  const u = estado.usuario;
+  const app = el('div','app');
+
+  // ── SIDEBAR ──
+  const menuItems = menuPorRol(u.rol);
+  const sidebar = el('div','sidebar');
+  sidebar.innerHTML = `
+    <div class="sidebar-header">
+      <h2>🏫 San Gabriel</h2>
+      <p>Portal Académico</p>
+    </div>
+    <nav class="sidebar-menu" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" id="btn-logout">⏻ Cerrar sesión</button>
+    </div>`;
+  app.appendChild(sidebar);
+
+  // ── MAIN ──
+  const main = el('div','main');
+  const titulo = menuItems.find(m => m.vista === estado.vista)?.label || 'Dashboard';
+  main.innerHTML = `
+    <div class="topbar">
+      <h2>${titulo}</h2>
+      <div class="topbar-user">
+        <div class="avatar">${u.nombre[0]}</div>
+        <div>
+          <div style="font-size:.88rem;font-weight:700">${u.nombre}</div>
+          <div class="rol-badge">${u.rol}</div>
+        </div>
+      </div>
+    </div>
+    <div class="content" id="content-area"></div>`;
+  app.appendChild(main);
+
+  // Render menu items
+  setTimeout(() => {
+    const nav = document.getElementById('sidebar-nav');
+    menuItems.forEach(item => {
+      const mi = el('div', 'menu-item' + (estado.vista === item.vista ? ' activo' : ''));
+      mi.innerHTML = `<span class="icn">${item.icn}</span>${item.label}`;
+      mi.addEventListener('click', () => setVista(item.vista));
+      nav.appendChild(mi);
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      estado.usuario = null;
+      estado.vista = 'dashboard';
+      render();
+    });
+
+    const content = document.getElementById('content-area');
+    content.appendChild(renderVista(estado.vista, u.rol));
+  }, 0);
+
+  return app;
+}
+
+function menuPorRol(rol) {
+  const base = [{ vista:'dashboard', label:'Dashboard', icn:'📊' }, { vista:'tecnologias', label:'Tecnologías', icn:'⚙️' }, { vista:'despliegue', label:'Despliegue', icn:'🚀' }];
+  if (rol === 'docente') return [...base,
+    { vista:'notas',      label:'Registro de Notas',  icn:'📝' },
+    { vista:'asistencia', label:'Control Asistencia',  icn:'✅' },
+    { vista:'comunicados',label:'Comunicados',          icn:'📢' },
+  ];
+  if (rol === 'coordinador') return [...base,
+    { vista:'notas',      label:'Gestión de Notas',   icn:'📝' },
+    { vista:'reportes',   label:'Reportes',             icn:'📈' },
+    { vista:'comunicados',label:'Comunicados',          icn:'📢' },
+  ];
+  if (rol === 'acudiente') return [...base,
+    { vista:'mis-notas',  label:'Notas de mi hijo',   icn:'📚' },
+    { vista:'asistencia-acudiente', label:'Asistencia', icn:'📅' },
+    { vista:'comunicados',label:'Comunicados',          icn:'📢' },
+  ];
+  if (rol === 'administrador') return [...base,
+    { vista:'usuarios',   label:'Usuarios',             icn:'👥' },
+    { vista:'reportes',   label:'Reportes',             icn:'📈' },
+    { vista:'comunicados',label:'Comunicados',          icn:'📢' },
+  ];
+  return base;
+}
+
+// ════════════════════════════════════════════════════════
+//  VISTAS
+// ════════════════════════════════════════════════════════
+function renderVista(vista, rol) {
+  if (vista === 'dashboard')   return renderDashboard(rol);
+  if (vista === 'notas')       return renderNotas(rol);
+  if (vista === 'asistencia')  return renderAsistencia();
+  if (vista === 'comunicados') return renderComunicados(rol);
+  if (vista === 'reportes')    return renderReportes();
+  if (vista === 'mis-notas')   return renderMisNotas();
+  if (vista === 'asistencia-acudiente') return renderAsistenciaAcudiente();
+  if (vista === 'usuarios')    return renderUsuarios();
+  if (vista === 'tecnologias') return renderTecnologias();
+  if (vista === 'despliegue')  return renderDespliegue();
+  const d = el('div'); d.textContent = 'Vista en desarrollo.'; return d;
+}
+
+// ── DASHBOARD ────────────────────────────────
+function renderDashboard(rol) {
+  const wrap = el('div');
+  const notas = estado.notas;
+  const asis  = estado.asistencia;
+
+  const stats = {
+    docente: [
+      { num: ESTUDIANTES_INIT.length, lbl:'Estudiantes', cl:'azul', icn:'🎓' },
+      { num: notas.filter(n=>n.estado==='aprobada').length, lbl:'Notas aprobadas', cl:'verde', icn:'✅' },
+      { num: notas.filter(n=>n.estado==='en_revision').length, lbl:'En revisión', cl:'gold', icn:'⏳' },
+      { num: asis.filter(a=>a.estado==='ausente'&&a.fecha===hoy).length, lbl:'Ausentes hoy', cl:'rojo', icn:'❌' },
+    ],
+    coordinador: [
+      { num: ESTUDIANTES_INIT.length, lbl:'Estudiantes', cl:'azul', icn:'🎓' },
+      { num: notas.filter(n=>n.estado==='en_revision').length, lbl:'Notas por aprobar', cl:'gold', icn:'⏳' },
+      { num: notas.filter(n=>n.estado==='aprobada').length, lbl:'Notas aprobadas', cl:'verde', icn:'✅' },
+      { num: estado.comunicados.length, lbl:'Comunicados', cl:'azul', icn:'📢' },
+    ],
+    acudiente: [
+      { num: notasDeEstudiante('e1').length, lbl:'Materias con nota', cl:'azul', icn:'📚' },
+      { num: promedioEst('e1'), lbl:'Promedio general', cl:'verde', icn:'📊' },
+      { num: asis.filter(a=>a.estudianteId==='e1'&&a.estado==='presente').length, lbl:'Días presentes', cl:'verde', icn:'✅' },
+      { num: asis.filter(a=>a.estudianteId==='e1'&&a.estado==='ausente').length,  lbl:'Inasistencias', cl:'rojo', icn:'❌' },
+    ],
+    administrador: [
+      { num: USUARIOS.length,           lbl:'Usuarios activos', cl:'azul', icn:'👥' },
+      { num: ESTUDIANTES_INIT.length,   lbl:'Estudiantes',      cl:'verde', icn:'🎓' },
+      { num: notas.length,              lbl:'Notas registradas',cl:'gold', icn:'📝' },
+      { num: estado.comunicados.length, lbl:'Comunicados',      cl:'azul', icn:'📢' },
+    ],
+  }[rol] || [];
+
+  const grid = el('div','stats-grid');
+  stats.forEach(s => {
+    grid.innerHTML += `
+      <div class="stat-card">
+        <div class="stat-icono ${s.cl}"><span>${s.icn}</span></div>
+        <div><div class="stat-num">${s.num}</div><div class="stat-lbl">${s.lbl}</div></div>
+      </div>`;
+  });
+  wrap.appendChild(grid);
+
+  // Tabla resumen
+  const card = el('div','card');
+  card.innerHTML = `
+    <div class="card-header"><h3>Resumen de Estudiantes — Grado 9°A</h3></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Estudiante</th><th>Documento</th><th>Promedio</th><th>Asistencia hoy</th><th>Estado</th></tr></thead>
+        <tbody>
+          ${ESTUDIANTES_INIT.map(e => {
+            const prom = promedioEst(e.id);
+            const asH  = asis.find(a=>a.estudianteId===e.id&&a.fecha===hoy);
+            const est  = prom >= 3.0 ? 'Aprobado' : 'En riesgo';
+            const ecl  = prom >= 3.0 ? 'verde' : 'rojo';
+            const acl  = {presente:'verde',ausente:'rojo',tarde:'gold'}[asH?.estado||''] || 'gris';
+            return `<tr>
+              <td><strong>${e.nombre}</strong></td>
+              <td>${e.doc}</td>
+              <td><strong>${prom}</strong></td>
+              <td><span class="badge ${acl}">${asH?.estado||'Sin registro'}</span></td>
+              <td><span class="badge ${ecl}">${est}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  wrap.appendChild(card);
+  return wrap;
+}
+
+// ── NOTAS ────────────────────────────────────
+function renderNotas(rol) {
+  const wrap = el('div');
+
+  // Formulario nuevo registro (solo docente)
+  if (rol === 'docente') {
+    const form = el('div','card');
+    form.innerHTML = `
+      <div class="card-header"><h3>📝 Registrar Nueva Nota</h3></div>
+      <div class="card-body">
+        <div id="nota-msg"></div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Estudiante</label>
+            <select id="sel-est">
+              ${ESTUDIANTES_INIT.map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Materia</label>
+            <select id="sel-mat">
+              ${MATERIAS.map(m=>`<option>${m}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Nota (1.0 – 5.0)</label>
+            <input id="inp-nota" type="number" min="1" max="5" step="0.1" placeholder="Ej: 4.3"/>
+          </div>
+          <div class="form-field">
+            <label>Periodo</label>
+            <select id="sel-per"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Observación (opcional)</label>
+          <textarea id="inp-obs" placeholder="Observaciones sobre el desempeño..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn-guardar-nota">Guardar nota</button>
+      </div>`;
+    wrap.appendChild(form);
+
+    setTimeout(() => {
+      document.getElementById('btn-guardar-nota').addEventListener('click', () => {
+        const valor = parseFloat(document.getElementById('inp-nota').value);
+        const msg   = document.getElementById('nota-msg');
+        if (isNaN(valor) || valor < 1 || valor > 5) {
+          msg.innerHTML = '<div class="msg-err">La nota debe estar entre 1.0 y 5.0</div>';
+          return;
+        }
+        const nueva = {
+          id: 'n'+Date.now(),
+          estudianteId: document.getElementById('sel-est').value,
+          materia: document.getElementById('sel-mat').value,
+          valor,
+          periodo: document.getElementById('sel-per').value,
+          estado: 'en_revision',
+          docente: estado.usuario.nombre,
+          obs: document.getElementById('inp-obs').value,
+        };
+        estado.notas.push(nueva);
+        lsSet('notas', estado.notas);
+        msg.innerHTML = '<div class="msg-ok">✅ Nota registrada correctamente — en espera de aprobación.</div>';
+        document.getElementById('inp-nota').value = '';
+        document.getElementById('inp-obs').value  = '';
+        setTimeout(() => setVista('notas'), 1200);
+      });
+    }, 0);
+  }
+
+  // Tabla de notas
+  const card = el('div','card');
+  const puedeAprobar = rol === 'coordinador';
+  card.innerHTML = `
+    <div class="card-header">
+      <h3>Notas Registradas — Periodo 1</h3>
+      <span class="badge azul">${estado.notas.length} registros</span>
+    </div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Estudiante</th><th>Materia</th><th>Nota</th><th>Periodo</th><th>Estado</th><th>Docente</th>${puedeAprobar?'<th>Acción</th>':''}</tr></thead>
+        <tbody id="tbody-notas"></tbody>
+      </table>
+    </div>`;
+  wrap.appendChild(card);
+
+  setTimeout(() => {
+    const tbody = document.getElementById('tbody-notas');
+    estado.notas.forEach(n => {
+      const est = ESTUDIANTES_INIT.find(e=>e.id===n.estudianteId);
+      const ecl = {aprobada:'verde',en_revision:'gold',devuelta:'rojo',borrador:'gris'}[n.estado]||'gris';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${est?.nombre||'—'}</strong></td>
+        <td>${n.materia}</td>
+        <td><strong>${n.valor.toFixed(1)}</strong></td>
+        <td>Periodo ${n.periodo}</td>
+        <td><span class="badge ${ecl}">${n.estado.replace('_',' ')}</span></td>
+        <td>${n.docente||'—'}</td>
+        ${puedeAprobar ? `<td>
+          ${n.estado==='en_revision'
+            ? `<button class="btn btn-success" data-id="${n.id}" data-acc="aprobar" style="margin-right:.3rem">✓ Aprobar</button>
+               <button class="btn btn-danger"  data-id="${n.id}" data-acc="devolver">✗ Devolver</button>`
+            : '<span style="color:var(--muted);font-size:.8rem">—</span>'}
+        </td>` : ''}`;
+      tbody.appendChild(tr);
+    });
+
+    if (puedeAprobar) {
+      tbody.addEventListener('click', e => {
+        const btn = e.target.closest('button[data-acc]');
+        if (!btn) return;
+        const id  = btn.dataset.id;
+        const acc = btn.dataset.acc;
+        const nota = estado.notas.find(n=>n.id===id);
+        if (nota) nota.estado = acc==='aprobar' ? 'aprobada' : 'devuelta';
+        lsSet('notas', estado.notas);
+        toast(acc==='aprobar' ? '✅ Nota aprobada' : '↩ Nota devuelta al docente');
+        setVista('notas');
+      });
+    }
+  }, 0);
+
+  return wrap;
+}
+
+// ── ASISTENCIA ───────────────────────────────
+function renderAsistencia() {
+  const wrap = el('div');
+
+  const card = el('div','card');
+  card.innerHTML = `
+    <div class="card-header">
+      <h3>✅ Registro de Asistencia — ${hoy}</h3>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-ghost" id="btn-todos-presente">Marcar todos Presente</button>
+        <button class="btn btn-primary" id="btn-guardar-asis">Guardar registro</button>
+      </div>
+    </div>
+    <div class="card-body" id="asis-lista"></div>`;
+  wrap.appendChild(card);
+
+  // Resumen
+  const resumen = el('div','card');
+  resumen.innerHTML = `
+    <div class="card-header"><h3>Resumen del día</h3></div>
+    <div class="card-body">
+      <div style="display:flex;gap:1rem;flex-wrap:wrap" id="asis-resumen"></div>
+    </div>`;
+  wrap.appendChild(resumen);
+
+  setTimeout(() => {
+    const lista = document.getElementById('asis-lista');
+    ESTUDIANTES_INIT.forEach(est => {
+      const reg = estado.asistencia.find(a=>a.estudianteId===est.id&&a.fecha===hoy)
+                  || { estudianteId:est.id, fecha:hoy, estado:'presente' };
+
+      const row = el('div','asis-row');
+      row.dataset.id = est.id;
+      row.innerHTML = `
+        <div class="asis-nombre">${est.nombre}</div>
+        <div class="asis-btns">
+          ${['presente','ausente','tarde'].map(s =>
+            `<button class="asis-btn ${reg.estado===s?'sel-'+s:''}" data-est="${est.id}" data-est="${est.id}" data-estado="${s}">${s.charAt(0).toUpperCase()+s.slice(1)}</button>`
+          ).join('')}
+        </div>`;
+      lista.appendChild(row);
+    });
+
+    lista.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-estado]');
+      if (!btn) return;
+      const estId  = btn.dataset.est;
+      const estado2 = btn.dataset.estado;
+      const row = btn.closest('.asis-row');
+      row.querySelectorAll('.asis-btn').forEach(b => {
+        b.className = 'asis-btn' + (b.dataset.estado===estado2 ? ' sel-'+estado2 : '');
+      });
+    });
+
+    document.getElementById('btn-todos-presente').addEventListener('click', () => {
+      document.querySelectorAll('.asis-btn').forEach(b => {
+        b.className = 'asis-btn' + (b.dataset.estado==='presente' ? ' sel-presente' : '');
+      });
+    });
+
+    document.getElementById('btn-guardar-asis').addEventListener('click', () => {
+      const nuevos = [];
+      document.querySelectorAll('.asis-row').forEach(row => {
+        const estId = row.dataset.id;
+        const sel = row.querySelector('.asis-btn[class*="sel-"]');
+        const estadoVal = sel ? sel.dataset.estado : 'presente';
+        nuevos.push({ id:'a'+Date.now()+estId, estudianteId:estId, fecha:hoy, estado:estadoVal });
+      });
+      estado.asistencia = estado.asistencia.filter(a=>a.fecha!==hoy);
+      estado.asistencia.push(...nuevos);
+      lsSet('asistencia', estado.asistencia);
+      const ausentes = nuevos.filter(a=>a.estado==='ausente');
+      toast(`✅ Asistencia guardada. ${ausentes.length ? '📧 Notificación enviada a '+ausentes.length+' acudiente(s)' : ''}`);
+      setVista('asistencia');
+    });
+
+    // Resumen
+    const res = document.getElementById('asis-resumen');
+    const counts = { presente:0, ausente:0, tarde:0 };
+    estado.asistencia.filter(a=>a.fecha===hoy).forEach(a=>counts[a.estado]=(counts[a.estado]||0)+1);
+    [['presente','verde','✅'],['ausente','rojo','❌'],['tarde','gold','⚠️']].forEach(([k,cl,ic])=>{
+      res.innerHTML += `<div class="stat-card" style="flex:1;min-width:140px">
+        <div class="stat-icono ${cl}">${ic}</div>
+        <div><div class="stat-num">${counts[k]||0}</div><div class="stat-lbl">${k}</div></div>
+      </div>`;
+    });
+  }, 0);
+
+  return wrap;
+}
+
+// ── COMUNICADOS ───────────────────────────────
+function renderComunicados(rol) {
+  const wrap = el('div');
+
+  if (rol !== 'acudiente') {
+    const form = el('div','card');
+    form.innerHTML = `
+      <div class="card-header"><h3>📢 Nuevo Comunicado</h3></div>
+      <div class="card-body">
+        <div id="com-msg"></div>
+        <div class="form-field"><label>Asunto</label><input id="com-asunto" placeholder="Asunto del comunicado"/></div>
+        <div class="form-field"><label>Mensaje</label><textarea id="com-cuerpo" placeholder="Escriba el mensaje aquí..."></textarea></div>
+        <button class="btn btn-primary" id="btn-enviar-com">Enviar comunicado</button>
+      </div>`;
+    wrap.appendChild(form);
+    setTimeout(() => {
+      document.getElementById('btn-enviar-com').addEventListener('click', () => {
+        const asunto = document.getElementById('com-asunto').value.trim();
+        const cuerpo = document.getElementById('com-cuerpo').value.trim();
+        if (!asunto || !cuerpo) {
+          document.getElementById('com-msg').innerHTML = '<div class="msg-err">Complete todos los campos.</div>';
+          return;
+        }
+        estado.comunicados.unshift({ id:'c'+Date.now(), asunto, cuerpo,
+          fecha:hoy, remitente:estado.usuario.nombre });
+        lsSet('comunicados', estado.comunicados);
+        toast('📢 Comunicado enviado correctamente');
+        setVista('comunicados');
+      });
+    }, 0);
+  }
+
+  const card = el('div','card');
+  card.innerHTML = `<div class="card-header"><h3>Comunicados Institucionales</h3></div>
+    <div class="card-body">${estado.comunicados.map(c=>`
+      <div class="comunicado-item">
+        <h4>${c.asunto}</h4>
+        <p>${c.cuerpo}</p>
+        <div class="fecha">📅 ${c.fecha} · ${c.remitente}</div>
+      </div>`).join('')}</div>`;
+  wrap.appendChild(card);
+  return wrap;
+}
+
+// ── REPORTES ──────────────────────────────────
+function renderReportes() {
+  const wrap = el('div');
+  const card = el('div','card');
+  card.innerHTML = `
+    <div class="card-header"><h3>📈 Reporte de Rendimiento — Grado 9°A · Periodo 1</h3>
+      <button class="btn btn-primary" id="btn-exportar">⬇ Exportar Excel</button>
+    </div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Estudiante</th>${MATERIAS.map(m=>`<th>${m}</th>`).join('')}<th>Promedio</th><th>Estado</th></tr></thead>
+        <tbody>
+          ${ESTUDIANTES_INIT.map(e=>{
+            const prom = promedioEst(e.id);
+            const cl   = prom>=3?'verde':'rojo';
+            return `<tr>
+              <td><strong>${e.nombre}</strong></td>
+              ${MATERIAS.map(m=>{
+                const n = estado.notas.find(x=>x.estudianteId===e.id&&x.materia===m);
+                return `<td>${n?n.valor.toFixed(1):'—'}</td>`;
+              }).join('')}
+              <td><strong>${prom}</strong></td>
+              <td><span class="badge ${cl}">${prom>=3?'Aprobado':'En riesgo'}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  wrap.appendChild(card);
+  setTimeout(()=>{
+    document.getElementById('btn-exportar').addEventListener('click',()=>toast('📊 Reporte exportado (demo)'));
+  },0);
+  return wrap;
+}
+
+// ── MIS NOTAS (Acudiente) ─────────────────────
+function renderMisNotas() {
+  const wrap = el('div');
+  const est  = ESTUDIANTES_INIT[0];
+  const notas = notasDeEstudiante('e1');
+  const prom  = promedioEst('e1');
+
+  const top = el('div'); top.style.cssText = 'display:grid;grid-template-columns:1fr 2fr;gap:1rem;margin-bottom:1rem';
+  top.innerHTML = `
+    <div class="promedio-box">
+      <div class="promedio-num">${prom}</div>
+      <div class="promedio-lbl">Promedio general<br>${est.nombre}</div>
+    </div>
+    <div class="card" style="margin:0">
+      <div class="card-header"><h3>Datos del estudiante</h3></div>
+      <div class="card-body">
+        <p><strong>Nombre:</strong> ${est.nombre}</p>
+        <p><strong>Grado:</strong> ${est.grado}</p>
+        <p><strong>Documento:</strong> ${est.doc}</p>
+        <p><strong>Estado:</strong> <span class="badge ${prom>=3?'verde':'rojo'}">${prom>=3?'Aprobado':'En riesgo'}</span></p>
+      </div>
+    </div>`;
+  wrap.appendChild(top);
+
+  const card = el('div','card');
+  card.innerHTML = `
+    <div class="card-header"><h3>Notas por Materia — Periodo 1</h3></div>
+    <div class="card-body">
+      ${notas.map(n=>`
+        <div class="nota-materia">
+          <div><div class="nota-nombre">${n.materia}</div>
+               <span class="badge ${n.estado==='aprobada'?'verde':'gold'}">${n.estado.replace('_',' ')}</span></div>
+          <div class="nota-val" style="color:${n.valor>=3?'var(--verde)':'var(--rojo)'}">${n.valor.toFixed(1)}</div>
+        </div>`).join('')}
+    </div>`;
+  wrap.appendChild(card);
+  return wrap;
+}
+
+// ── ASISTENCIA ACUDIENTE ──────────────────────
+function renderAsistenciaAcudiente() {
+  const wrap  = el('div');
+  const asis  = estado.asistencia.filter(a=>a.estudianteId==='e1');
+  const card  = el('div','card');
+  card.innerHTML = `
+    <div class="card-header"><h3>Historial de Asistencia — Valentina Ospina Ruiz</h3></div>
+    <div class="card-body">
+      <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+        ${[['presente','verde','✅'],['ausente','rojo','❌'],['tarde','gold','⚠️']].map(([k,cl,ic])=>`
+          <div class="stat-card" style="flex:1;min-width:130px">
+            <div class="stat-icono ${cl}">${ic}</div>
+            <div><div class="stat-num">${asis.filter(a=>a.estado===k).length}</div><div class="stat-lbl">${k}</div></div>
+          </div>`).join('')}
+      </div>
+      <table>
+        <thead><tr><th>Fecha</th><th>Estado</th></tr></thead>
+        <tbody>${asis.map(a=>{
+          const cl={presente:'verde',ausente:'rojo',tarde:'gold'}[a.estado]||'gris';
+          return `<tr><td>${a.fecha}</td><td><span class="badge ${cl}">${a.estado}</span></td></tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+  wrap.appendChild(card);
+  return wrap;
+}
+
+// ── USUARIOS (Admin) ──────────────────────────
+function renderUsuarios() {
+  const wrap = el('div');
+  const card = el('div','card');
+  card.innerHTML = `
+    <div class="card-header"><h3>👥 Gestión de Usuarios</h3>
+      <button class="btn btn-primary" id="btn-nuevo-user">+ Nuevo usuario</button>
+    </div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th></tr></thead>
+        <tbody>${USUARIOS.map(u=>`
+          <tr>
+            <td><strong>${u.nombre}</strong></td>
+            <td>${u.correo}</td>
+            <td><span class="badge azul">${u.rol}</span></td>
+            <td><span class="badge verde">Activo</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  wrap.appendChild(card);
+  setTimeout(()=>{
+    document.getElementById('btn-nuevo-user').addEventListener('click',()=>toast('👤 Formulario de usuario (demo)'));
+  },0);
+  return wrap;
+}
+
+// ── Toast ─────────────────────────────────────
+function renderToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3000);
+}
+
+// ── Helpers ───────────────────────────────────
+function el(tag, cls) { const e=document.createElement(tag); if(cls)e.className=cls; return e; }
+function notasDeEstudiante(id) { return estado.notas.filter(n=>n.estudianteId===id); }
+function promedioEst(id) {
+  const ns = notasDeEstudiante(id);
+  if (!ns.length) return '—';
+  return (ns.reduce((s,n)=>s+n.valor,0)/ns.length).toFixed(1);
+}
+
+// ── TECNOLOGÍAS ───────────────────────────────
+function renderTecnologias() {
+  const wrap = el('div');
+
+  // Arquitectura
+  const arch = el('div');
+  arch.style.cssText = 'background:var(--azul);color:#fff;border-radius:12px;padding:1.2rem;margin-bottom:1.2rem';
+  arch.innerHTML = `
+    <h4 style="font-size:.95rem;font-weight:700;margin-bottom:.8rem">🏗️ Arquitectura del Sistema — 3 Capas Desacopladas</h4>
+    <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:.7rem .9rem;margin-bottom:.5rem">
+      <strong style="display:block;margin-bottom:.2rem">⚛️ Capa de Presentación — Frontend</strong>
+      React 18 · Context API · Hooks (useState, useEffect, useReducer, useContext) · Axios · React Router v6
+    </div>
+    <div style="text-align:center;opacity:.6;margin:.2rem 0;font-size:1.1rem">⬇ HTTP / REST / JSON</div>
+    <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:.7rem .9rem;margin-bottom:.5rem">
+      <strong style="display:block;margin-bottom:.2rem">⚙️ Capa de Lógica de Negocio — Backend</strong>
+      Node.js · Express 4 · JWT Authentication · Swagger / OpenAPI 3.0 · Nodemailer
+    </div>
+    <div style="text-align:center;opacity:.6;margin:.2rem 0;font-size:1.1rem">⬇ ORM / SQL</div>
+    <div style="background:rgba(255,255,255,.12);border-radius:8px;padding:.7rem .9rem">
+      <strong style="display:block;margin-bottom:.2rem">🐘 Capa de Datos — Base de Datos</strong>
+      PostgreSQL 15 · Sequelize ORM · Migraciones versionadas · Normalización 3FN
+    </div>`;
+  wrap.appendChild(arch);
+
+  // Frontend + Backend cards
+  const grid = el('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.2rem';
+
+  const feItems = [
+    ['⚛️','ReactJS 18','Biblioteca para construir interfaces mediante componentes funcionales reutilizables con Virtual DOM.'],
+    ['🔁','useState','Hook para estado local. Maneja formularios, validaciones y datos de cada componente.'],
+    ['🌊','useEffect','Hook para efectos secundarios. Carga datos del API al montar componentes y limpia con cleanup.'],
+    ['🔀','useReducer','Hook para estado complejo. Gestiona flujos de notas y asistencia con patrón acción-reductor.'],
+    ['🌐','useContext','Hook para consumir el contexto global de autenticación sin prop drilling.'],
+    ['🔑','Context API','Estado global de la sesión (usuario, rol, token) compartido en toda la aplicación.'],
+    ['📡','Axios','Cliente HTTP con interceptores JWT y manejo automático del error 401.'],
+    ['🗺️','React Router v6','Enrutamiento con rutas protegidas por autenticación y por rol.'],
+  ];
+  const beItems = [
+    ['🟢','Node.js + Express','Servidor REST multicapa con middleware de autenticación JWT y manejo global de errores.'],
+    ['📋','Swagger / OpenAPI 3.0','Documentación interactiva del API en /api-docs con prueba de endpoints en vivo.'],
+    ['🔐','JWT (JSON Web Tokens)','Autenticación stateless. Token firmado con rol del usuario verificado en cada petición.'],
+    ['🔒','bcrypt','Cifrado de contraseñas con salt aleatorio. Cost factor 12.'],
+    ['🐘','PostgreSQL + Sequelize','ORM con migraciones versionadas, relaciones y validaciones en el modelo de datos.'],
+    ['📧','Nodemailer','Notificaciones por correo al acudiente cuando el estudiante acumula inasistencias.'],
+    ['🛡️','Helmet + CORS','Middleware de seguridad. Protege cabeceras HTTP y controla orígenes permitidos.'],
+    ['📦','Arquitectura MVC','Controllers, Routes, Models y Middleware separados para facilitar el mantenimiento.'],
+  ];
+
+  [['⚛️ Frontend — React', feItems],['⚙️ Backend — Node.js + Express', beItems]].forEach(([titulo, items]) => {
+    const card = el('div','card');
+    let html = `<div class="card-header"><h3>${titulo}</h3></div><div class="card-body">`;
+    items.forEach(([icn, nombre, desc]) => {
+      html += `<div style="display:flex;align-items:flex-start;gap:.7rem;padding:.5rem 0;border-bottom:1px solid var(--borde)">
+        <div style="font-size:1.3rem;margin-top:.05rem;flex-shrink:0">${icn}</div>
+        <div>
+          <div style="font-size:.88rem;font-weight:700;color:var(--texto)">${nombre}</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:.1rem;line-height:1.4">${desc}</div>
+        </div></div>`;
+    });
+    html += '</div>';
+    card.innerHTML = html;
+    grid.appendChild(card);
+  });
+  wrap.appendChild(grid);
+
+  // API Endpoints
+  const ecard = el('div','card');
+  const endpoints = [
+    ['POST','m-post','/api/v1/auth/login','Autenticar usuario y obtener token JWT','Público'],
+    ['GET','m-get','/api/v1/estudiantes/:id/notas','Obtener notas de un estudiante por periodo','admin, coordinador, docente, acudiente'],
+    ['POST','m-post','/api/v1/estudiantes/:id/notas','Registrar nueva nota (estado: borrador)','docente'],
+    ['PATCH','m-patch','/api/v1/notas/:id/estado','Aprobar o devolver nota al docente','coordinador'],
+    ['GET','m-get','/api/v1/grupos/:id/asistencia','Consultar asistencia del grupo por fecha','admin, coordinador, docente'],
+    ['POST','m-post','/api/v1/grupos/:id/asistencia','Registrar asistencia diaria y enviar alertas','docente'],
+    ['GET','m-get','/api/v1/grupos/:id/boletines','Generar boletines del grupo en PDF','coordinador'],
+    ['GET','m-get','/api/v1/comunicados','Listar comunicados del usuario autenticado','Todos'],
+  ];
+  let epHtml = `<div class="card-header"><h3>📋 API REST — Endpoints documentados con Swagger</h3></div><div class="card-body">`;
+  endpoints.forEach(([m, cl, ep, desc, roles]) => {
+    const mCl = {POST:'#2E5090','GET':'#27ae60','PATCH':'#f39c12','DELETE':'#e74c3c'}[m]||'#666';
+    epHtml += `<div style="display:flex;align-items:center;gap:.7rem;padding:.45rem .5rem;border-bottom:1px solid var(--borde);font-size:.83rem">
+      <span style="padding:.15rem .45rem;border-radius:4px;font-size:.72rem;font-weight:700;min-width:52px;text-align:center;background:${mCl}22;color:${mCl}">${m}</span>
+      <span style="font-family:monospace;font-size:.8rem;color:var(--texto);min-width:280px">${ep}</span>
+      <span style="flex:1;color:var(--muted)">${desc}</span>
+      <span class="badge b-gris" style="font-size:.7rem;white-space:nowrap">${roles}</span>
+    </div>`;
+  });
+  epHtml += '</div>';
+  ecard.innerHTML = epHtml;
+  wrap.appendChild(ecard);
+  return wrap;
+}
+
+// ── DESPLIEGUE ────────────────────────────────
+function renderDespliegue() {
+  const wrap = el('div');
+
+  const intro = el('div','card');
+  intro.innerHTML = `
+    <div class="card-header"><h3>🚀 Estrategia de Despliegue — Plataformas PaaS</h3></div>
+    <div class="card-body">
+      <p style="font-size:.9rem;color:var(--texto);line-height:1.6;margin-bottom:1.2rem">
+        El sistema utiliza <strong>Despliegue Continuo (CD)</strong> integrado con GitHub.
+        Cada push a la rama <code style="background:var(--gris);padding:.1rem .4rem;border-radius:4px">main</code>
+        desencadena automáticamente el build y publicación. No se requiere intervención manual.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem" id="deploy-grid"></div>
+    </div>`;
+  wrap.appendChild(intro);
+
+  const envCard = el('div','card');
+  envCard.innerHTML = `
+    <div class="card-header"><h3>🔧 Variables de Entorno — Backend (Railway)</h3></div>
+    <div class="card-body">
+      <div style="background:#1e1e2e;border-radius:8px;padding:1rem;font-family:monospace;font-size:.82rem;color:#cdd6f4;line-height:1.9">
+        <span style="color:#89b4fa">DATABASE_URL</span>=postgresql://user:pass@host:5432/sangabriel_db<br>
+        <span style="color:#89b4fa">JWT_SECRET</span>=clave_secreta_aleatoria_minimo_32_chars<br>
+        <span style="color:#89b4fa">JWT_EXPIRES_IN</span>=8h<br>
+        <span style="color:#89b4fa">FRONTEND_URL</span>=https://Tmjia.github.io/san-gabriel-app<br>
+        <span style="color:#89b4fa">EMAIL_HOST</span>=smtp.gmail.com<br>
+        <span style="color:#89b4fa">NODE_ENV</span>=production<br>
+        <span style="color:#89b4fa">PORT</span>=3001
+      </div>
+    </div>`;
+  wrap.appendChild(envCard);
+
+  setTimeout(() => {
+    const dg = document.getElementById('deploy-grid');
+    const platforms = [
+      {ic:'▲', tit:'Frontend — GitHub Pages', desc:'Hosting gratuito para la SPA. Activado desde Settings → Pages del repositorio. SSL automático incluido.', url:'https://Tmjia.github.io/san-gabriel-app', color:'#1F3864'},
+      {ic:'🚂', tit:'Backend — Railway', desc:'Plataforma PaaS para Node.js. Auto-deploy desde GitHub, logs en tiempo real, variables de entorno seguras.', url:'https://api.sangabriel.edu.co/api-docs', color:'var(--verde)'},
+      {ic:'🐘', tit:'Base de datos — Supabase', desc:'PostgreSQL gestionado. Backups automáticos diarios con 30 días de retención. Conexión privada desde Railway.', url:'Conexión privada desde Railway', color:'var(--gold)'},
+      {ic:'📁', tit:'Repositorio — GitHub', desc:'Control de versiones con pipeline CI/CD. Pruebas automáticas en cada Pull Request. Código público.', url:'https://github.com/Tmjia/san-gabriel-app', color:'var(--rojo)'},
+    ];
+    platforms.forEach(p => {
+      const dc = el('div','card');
+      dc.style.borderTop = `4px solid ${p.color}`;
+      dc.style.marginBottom = '0';
+      dc.innerHTML = `
+        <div class="card-body">
+          <h5 style="font-size:.9rem;font-weight:700;color:var(--azul);margin-bottom:.5rem">${p.ic} ${p.tit}</h5>
+          <p style="font-size:.8rem;color:var(--muted);line-height:1.4">${p.desc}</p>
+          <div style="font-size:.78rem;color:var(--verde);margin-top:.5rem;word-break:break-all;font-weight:600">🔗 ${p.url}</div>
+        </div>`;
+      dg.appendChild(dc);
+    });
+  }, 0);
+  return wrap;
+}
+
+// ── Iniciar ───────────────────────────────────
+render();
+</script>
+</body>
+</html>
